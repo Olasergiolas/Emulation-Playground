@@ -16,8 +16,8 @@ def challenge2(ql: Qiling, debug: bool = False):
         ql.hook_address(check_strlen, modbase + 0xe40)  # Equal char length check for "ChallengeStart"
         ql.hook_address(check_char_compare, modbase + 0xd9c) # Individual char compare for "QilingOS"
         ql.hook_address(check_char_compare, modbase + 0xdec) # Individual char compare for "ChallengeStart"
+        print("[*] Spoofing uname syscall")
     
-    print("[*] Spoofing uname syscall")
     ql.os.set_api("uname", my_uname, qc.QL_INTERCEPT.CALL)  # Override implementation entirely
 
 def my_uname(ql: Qiling):
@@ -36,7 +36,7 @@ def my_uname(ql: Qiling):
 
 def check_strlen(ql: Qiling):
     print("[*] Comparing final results!")
-    print("x19: {}".format(ql.arch.regs.x19))
+    print("x19: {}".format(hex(ql.arch.regs.x19)))
     print("x0: {}".format(hex(ql.arch.regs.x0)))
     print()
 
