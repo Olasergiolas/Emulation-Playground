@@ -1,2 +1,5 @@
 rootfs-master/
 qiling_venv/
+*.bndb
+__pycache__/
+qiling/
