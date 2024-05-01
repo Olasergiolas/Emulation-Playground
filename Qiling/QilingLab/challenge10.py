@@ -10,25 +10,10 @@ from challenge5 import challenge5
 from challenge6 import challenge6
 from challenge7 import challenge7
 from challenge8 import challenge8
+from challenge9 import challenge9
 
-def challenge9(ql: Qiling, debug: bool = False):
-    """
-    This challenge takes the "aBcdeFghiJKlMnopqRstuVWxYz" string and converts it to lowercase.
-    Then it compares the string with the lowercase one and if they match, the challenge is passed.
-    This will never happen under normal circumstances so let's avoid calling tolowercase() so 
-    both strings are the same.
-    """
-
-    ql.hook_address(hook_strcmp, ql.mem.get_lib_base("qilinglab-aarch64") + 0x1280, debug)
-    ql.patch(0x124c, ql.pack32(0x1f2003d5), "qilinglab-aarch64")    # NOP out the call to tolower()
-
-def hook_strcmp(ql: Qiling, debug: bool = False):
-    str1 = ql.mem.string(ql.arch.regs.x0)
-    str2 = ql.mem.string(ql.arch.regs.x1)
-
-    if debug:
-        print("[*] Performing Challenge 9 hooks!")
-        print("strcmp({}, {})".format(str1, str2))
+def challenge10(ql: Qiling, debug: bool = False):
+    ql.add_fs_mapper("/proc/self/cmdline", "arm64_linux/spoofed_cmdline")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -52,6 +37,7 @@ def main():
     challenge7(ql)
     challenge8(ql, args.debug)
     challenge9(ql, args.debug)
+    challenge10(ql, args.debug)
 
     # do the magic!
     ql.run()
