@@ -23,13 +23,13 @@ def challenge11(ql: Qiling, debug: bool = False):
     challenge11_func = next(i for i in mod_elf.symbols if i.name == "challenge11")  # There is no such thing as a get_function_by_name method in lief
     challenge11_func_addr = challenge11_func.value                                  # Use .symbols instead of .exported_functions because lief screw up
     challenge11_func_end = challenge11_func_addr + challenge11_func.size            # the symbol size if using the Function object.
-    md = Cs(CS_ARCH_ARM64, CS_MODE_ARM)
-    ql.hook_code(callback=mrs_callback, begin=modbase+challenge11_func_addr, end=modbase+challenge11_func_end-0x4, user_data=md)  # .hook_insn() is not properly working
+    ql.hook_code(callback=mrs_callback, begin=modbase+challenge11_func_addr, end=modbase+challenge11_func_end-0x4)  # .hook_insn() is not properly working
 
-def mrs_callback(ql: Qiling, address, size, md: Cs):
-    instruction = ql.mem.read(address, size)
-    for i in md.disasm(instruction, size):
-        if i.mnemonic == "mrs":
+def mrs_callback(ql: Qiling, address, size):
+    instruction = ql.mem.read(address, 4)
+    parsed_inst = ql.arch.disassembler.disasm_lite(instruction, 4, count=1)
+    for i in parsed_inst:
+        if i[2] == "mrs":   # Disassembler returns a tuple of (address, size, mnemonic, op_str)
             ql.arch.regs.x0 = (0x1337 << 0x10)
             ql.arch.regs.arch_pc += 0x4
 
